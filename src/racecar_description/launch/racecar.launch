@@ -25,14 +25,18 @@
 	<!-- 加载机器人模型描述参数 -->
 	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find racecar_description)/urdf/racecar.urdf.xacro'"/>
 
-
-	<!--运行joint_state_publisher节点，发布机器人关节状态-->
-	<node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "state_publisher">
-		<param name="publish_frequency" type="double" value="20.0" />
-	</node>
-	    <!-- 在gazebo中加载机器人模型-->
+	<!-- 在gazebo中加载机器人模型-->
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
           args="-urdf -model shcrobot -param robot_description -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos)"/> 
+
+	<!-- 加载racecar控制器 -->
+    <include file="$(find racecar_control)/launch/racecar_control.launch" ns="/"/>
+
+	<!--运行joint_state_publisher节点，发布机器人关节状态-->
+	<!-- <node name = "robot_state_publisher" pkg = "robot_state_publisher" type = "state_publisher">
+		<param name="publish_frequency" type="double" value="20.0" />
+	</node> -->
+
 </launch>
 
 

@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<launch>
+ <!-- 启动键盘控制节点-->
+  <rosparam command="load" file="$(find racecar_control)/config/keyboard_teleop.yaml" />
+  <!--读取键盘控制配置-->
+  <node pkg="racecar_control" type="keyboard_teleop.py" name="keyboard_teleop" />
+
+</launch>
