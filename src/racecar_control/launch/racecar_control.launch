@@ -2,28 +2,32 @@
 
 <launch>
 
-  <!-- Load joint controller configurations from YAML file to parameter server -->
-  <rosparam file="$(find racecar_control)/config/racecar_control.yaml" command="load"/>
+  <!-- 加载参数、控制器Spawner、joint_state_publisher节点 -->
+  <include file="$(find racecar_control)/launch/include/racecar_base_control.launch">
+      <param name="ns_name" value="racecar"/>
+  </include>
 
-  <!-- load the controllers -->
-  <node name="controller_manager" pkg="controller_manager" type="spawner" respawn="false"
-        output="screen" ns="/racecar" args="left_rear_wheel_velocity_controller right_rear_wheel_velocity_controller
-                                            left_front_wheel_velocity_controller right_front_wheel_velocity_controller
-                                            left_steering_hinge_position_controller right_steering_hinge_position_controller
-                                            joint_state_controller"/>
-
-  <!-- convert joint states to TF transforms for rviz, etc -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
-    <remap from="/joint_states" to="/racecar/joint_states" />
+  <!-- 电机控制 -->
+  <node name="motor_pwm" type="motor_pwm.py" pkg="racecar_control" ns="racecar">
+      <param name="car_name" value="racecar"/>
+      <param name="sub_name" value="pwm_input"/>
   </node>
 
   <!-- servo node -->
-  <node pkg="racecar_control" type="servo_commands.py" name="servo_commands" output="screen">
+  <!-- <node pkg="racecar_control" type="servo_commands.py" name="servo_commands" output="screen">
     <remap from="/racecar/ackermann_cmd_mux/output" to="/vesc/low_level/ackermann_cmd_mux/output"/>
+  </node> -->
+
+  <!-- 按键输入 -->
+  <node name="key_control" type="key_control.py" pkg="racecar_control" ns="racecar">
+      <param name="max_speed" type="double" value="10"/>
+      <param name="max_angle" type="double" value="0.32"/>
+      <param name="key_pass"  type="double" value="0"/>
+      <param name="pub_name"  type="string" value="pwm_input"/>
   </node>
 
   <!-- 开启键盘控制 -->
-  <include file="$(find racecar_control)/launch/keyboard_teleop.launch"></include>
+  <!-- <include file="$(find racecar_control)/launch/keyboard_teleop.launch"></include> -->
 
   <!-- Allow for Gazebo to broadcast odom -->
   <!-- <node pkg="racecar_gazebo" name="gazebo_odometry_node" type="gazebo_odometry.py"/> -->

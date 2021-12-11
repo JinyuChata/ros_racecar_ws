@@ -1,0 +1,39 @@
+<launch>
+  <include file="$(find racecar_description)/launch/racecar.launch"/>
+
+  <!-- 根据 Imu（陀螺仪） 与 joint（编码器）建立odom坐标 -->
+  <node name="imu_odom" pkg="racecar_slam" type="odom_imu.py" ns="slam">
+      <remap from="/slam/imu_data" to="/imu_data"/>
+      <remap from="/slam/joint_states" to="/racecar/joint_states"/>
+      <param name="odom_topic" value="odom_topic"/>
+  </node>
+
+  <!-- 建图 -->
+  <!-- <include file="$(find racecar_slam)/launch/include/robot_gmapping.launch"/> -->
+
+  <!-- 开启map话题 -->
+  <!-- Localization -->
+  <arg name="use_map_topic"  default="True"/>
+  <arg name="initial_pose_x" default="-0.5"/>
+  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_a" default="0.0"/>
+  <arg name="custom_amcl_launch_file" default="$(find racecar_slam)/launch/include/robot_amcl.launch"/> 
+  <include file="$(arg custom_amcl_launch_file)" >
+      <arg name="initial_pose_x" value="$(arg initial_pose_x)"/>
+      <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
+      <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
+      <arg name="use_map_topic"  value="$(arg use_map_topic)"/>
+  </include>
+
+  <!-- Move base -->
+  <include file="$(find racecar_slam)/launch/include/move_base.launch"/>
+
+  <!-- rviz -->
+  <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find racecar_slam)/rviz/gmapping.rviz" required="true"/>
+
+  <!-- Map server -->
+  <arg name="map_file" default="$(find racecar_slam)/map/map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" ns="slam"/>
+ 
+</launch>
