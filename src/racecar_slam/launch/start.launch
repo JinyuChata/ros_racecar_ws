@@ -32,6 +32,8 @@
   <node name="rviz" pkg="rviz" type="rviz"
         args="-d $(find racecar_slam)/rviz/gmapping.rviz" required="true"/>
 
+  <!-- rviz貌似来不及收到map_server发来的图, 因此可能需要在执行脚本后手动来一句: -->
+  <!-- rosrun map_server map_sver /home/jinyuzhu/smartcar_ws/src/racecar_slam/map/map.yaml -->
   <!-- Map server -->
   <arg name="map_file" default="$(find racecar_slam)/map/map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" ns="slam"/>
